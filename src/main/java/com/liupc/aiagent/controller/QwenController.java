@@ -5,6 +5,10 @@ import com.openai.client.okhttp.OpenAIOkHttpClient;
 import com.openai.errors.OpenAIException;
 import com.openai.models.chat.completions.ChatCompletion;
 import com.openai.models.chat.completions.ChatCompletionCreateParams;
+import lombok.extern.java.Log;
+import lombok.extern.log4j.Log4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,7 +21,10 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/api/qwen")
 @CrossOrigin(origins = "*") // 允许跨域访问，方便前端调用
+@Log
 public class QwenController {
+
+    Logger logger = LoggerFactory.getLogger(QwenController.class);
 
     // 从配置文件读取API密钥和基础URL
     @Value("${langchain4j.community.dashscope.chat-model.api-key}")
@@ -28,6 +35,9 @@ public class QwenController {
 
     // 创建OpenAI客户端（单例复用）
     private OpenAIClient createClient() {
+
+        logger.info("ApiKey:"+apiKey);
+        logger.info("baseUrl:"+baseUrl);
         return OpenAIOkHttpClient.builder()
                 .apiKey(apiKey)
                 .baseUrl(baseUrl)
