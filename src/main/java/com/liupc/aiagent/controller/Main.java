@@ -1,34 +1,27 @@
 package com.liupc.aiagent.controller;
-
-import com.alibaba.dashscope.app.*;
-import com.alibaba.dashscope.exception.ApiException;
-import com.alibaba.dashscope.exception.InputRequiredException;
-import com.alibaba.dashscope.exception.NoApiKeyException;
+import com.openai.client.OpenAIClient;
+import com.openai.client.okhttp.OpenAIOkHttpClient;
+import com.openai.models.chat.completions.ChatCompletion;
+import com.openai.models.chat.completions.ChatCompletionCreateParams;
 
 public class Main {
-    public static void appCall()
-            throws ApiException, NoApiKeyException, InputRequiredException {
-        ApplicationParam param = ApplicationParam.builder()
-                // 若没有配置环境变量，可用百炼API Key将下行替换为：.apiKey("sk-xxx")。但不建议在生产环境中直接将API Key硬编码到代码中，以减少API Key泄露风险。
+    public static void main(String[] args) {
+        OpenAIClient client = OpenAIOkHttpClient.builder()
                 .apiKey(System.getenv("DASHSCOPE_API_KEY"))
-                .appId("YOUR_APP_ID")
-                .prompt("你是谁？")
+                .baseUrl("https://dashscope.aliyuncs.com/compatible-mode/v1")
                 .build();
 
-        Application application = new Application();
-        ApplicationResult result = application.call(param);
+        ChatCompletionCreateParams params = ChatCompletionCreateParams.builder()
+                .addUserMessage("你是谁")
+                .model("qwen-plus")
+                .build();
 
-        System.out.printf("text: %s\n",
-                result.getOutput().getText());
-    }
-
-    public static void main(String[] args) {
         try {
-            appCall();
-        } catch (ApiException | NoApiKeyException | InputRequiredException e) {
-            System.err.println("message："+e.getMessage());
-            System.out.println("请参考文档：https://help.aliyun.com/zh/model-studio/developer-reference/error-code");
+            ChatCompletion chatCompletion = client.chat().completions().create(params);
+            System.out.println(chatCompletion);
+        } catch (Exception e) {
+            System.err.println("Error occurred: " + e.getMessage());
+            e.printStackTrace();
         }
-        System.exit(0);
     }
 }

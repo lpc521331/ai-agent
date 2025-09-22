@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.Duration;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
@@ -19,10 +20,10 @@ import java.util.Optional;
 public class QwenController {
 
     // 从配置文件读取API密钥和基础URL
-    @Value("${qwen.api-key}")
+    @Value("${langchain4j.community.dashscope.chat-model.api-key}")
     private String apiKey;
 
-    @Value("${qwen.base-url:https://dashscope.aliyuncs.com/compatible-mode/v1}")
+    @Value("${langchain4j.community.dashscope.chat-model.qwen.base-url:https://dashscope.aliyuncs.com/compatible-mode/v1}")
     private String baseUrl;
 
     // 创建OpenAI客户端（单例复用）
