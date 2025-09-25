@@ -28,6 +28,12 @@
             <artifactId>openai-java</artifactId>
             <version>3.6.0</version>
         </dependency>
+        <!-- https://mvnrepository.com/artifact/org.springframework.ai/spring-ai-ollama -->
+        <dependency>
+            <groupId>org.springframework.ai</groupId>
+            <artifactId>spring-ai-ollama</artifactId>
+            <version>1.0.2</version>
+        </dependency>
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
