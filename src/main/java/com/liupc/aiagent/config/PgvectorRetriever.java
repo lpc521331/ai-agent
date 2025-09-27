@@ -1,6 +1,7 @@
 package com.liupc.aiagent.config;
 
 import dev.langchain4j.data.embedding.Embedding;
+import dev.langchain4j.data.segment.TextSegment;
 import dev.langchain4j.model.embedding.AllMiniLmL6V2EmbeddingModel;
 import dev.langchain4j.model.embedding.EmbeddingModel;
 import lombok.extern.slf4j.Slf4j;
@@ -82,6 +83,35 @@ public class PgvectorRetriever {
 
         } catch (SQLException e) {
             log.error("检索文档失败 - 问题: {}, 错误信息: {}", question, e.getMessage(), e); // 详细日志
+            throw e; // 向上抛出，让上层 Service 处理
+        }
+    }
+
+    /**
+     * 将文本片段和向量存入pgvector
+     */
+    public void storeSegmentsToPgvector(List<TextSegment> segments) throws SQLException {
+        String sql = "INSERT INTO rag_documents (text, embedding) VALUES (?, vector(?))";
+
+        try (Connection conn = dataSource.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+                for (TextSegment segment : segments) {
+                    // 生成向量
+                    Embedding embedding = embeddingModel.embed(segment.text()).content();
+                    List<Float> vector = embedding.vectorAsList();
+
+                    // 转换向量为pgvector格式
+                    String vectorStr = "[" + vector.stream()
+                            .map(String::valueOf)
+                            .collect(Collectors.joining(", ")) + "]";
+
+                    pstmt.setString(1, segment.text());
+                    pstmt.setString(2, vectorStr);
+                    pstmt.addBatch();
+                }
+                pstmt.executeBatch();
+            } catch (SQLException e) {
+            log.error("插入向量数据库失败, 错误信息: {}", e.getMessage(), e); // 详细日志
             throw e; // 向上抛出，让上层 Service 处理
         }
     }
