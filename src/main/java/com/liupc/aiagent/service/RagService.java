@@ -1,5 +1,7 @@
 package com.liupc.aiagent.service;
 
+import com.liupc.aiagent.entity.dto.QueryResponse;
+
 import java.util.Map;
 
 public interface RagService {

@@ -8,6 +8,7 @@ import java.util.List;
 public class QueryResponse {
     private String answer;
     private List<String> sources; // 参考的文档片段
+    private Boolean success;
 
     // 构造器、getter、setter
     public QueryResponse(String answer, List<String> sources) {

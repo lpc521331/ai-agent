@@ -72,8 +72,11 @@
             alert("请输入问题");
             return;
         }
-
-        axios.post('/api/rag/query', { question: question })
+        axios.post('/api/rag/chat', { question: question }, {
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
             .then(response => {
                 const data = response.data;
                 document.getElementById('answer').innerText = data.answer;

@@ -1,5 +1,6 @@
 package com.liupc.aiagent.service.impl;
 
+import com.liupc.aiagent.entity.dto.QueryResponse;
 import com.liupc.aiagent.service.LargeModelService;
 import com.liupc.aiagent.service.RagService;
 import com.liupc.aiagent.config.PgvectorRetriever; // 修改导入语句，使用config包下的PgvectorRetriever
@@ -37,6 +38,7 @@ public class RagServiceImpl implements RagService {
     // 从配置文件读取检索参数（灵活配置topK）
     @Value("${rag.retrieve.topK:3}")
     private int retrieveTopK;
+
 
     /**
      * 步骤1：检索相似文档
@@ -78,7 +80,7 @@ public class RagServiceImpl implements RagService {
     private Map<String, Object> callModelWithFallback(String ragPrompt) {
         Map<String, Object> modelResult;
         try {
-            // 1. 优先调用默认模型（如OpenAI）
+            // 1. 优先调用默认模型
             modelResult = qwenService.handleMessage(ragPrompt);
             if ((boolean) modelResult.get("success")) {
                 return modelResult;

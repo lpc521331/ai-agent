@@ -1,5 +1,6 @@
 package com.liupc.aiagent.controller;
 
+import com.liupc.aiagent.entity.dto.QueryRequest;
 import com.liupc.aiagent.service.RagService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,9 +36,10 @@ public class VectorRagController {
      * 请求体示例：{"message": "什么是向量数据库？"}
      */
     @PostMapping("/chat")
-    public Map<String, Object> chatPost(@RequestBody Map<String, String> request) {
-        String message = request.getOrDefault("message", "请输入您的问题");
-        logger.info("接收RAG POST请求 - 用户问题: {}", message);
-        return ragService.ragChat(message);
+    public Map<String, Object> chatPost(@RequestBody QueryRequest request) {
+        logger.info("接收RAG POST请求 - 用户问题: {}", request.getQuestion());
+        Map<String, Object>  queryResponse = ragService.ragChat(request.getQuestion());
+        logger.info("接收RAG POST请求 - 用户问题: {}", queryResponse);
+        return queryResponse;
     }
 }

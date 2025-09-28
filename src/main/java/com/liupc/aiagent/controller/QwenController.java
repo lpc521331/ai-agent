@@ -1,24 +1,14 @@
 package com.liupc.aiagent.controller;
 
 import com.liupc.aiagent.service.LargeModelService;
-import com.openai.client.OpenAIClient;
-import com.openai.client.okhttp.OpenAIOkHttpClient;
-import com.openai.errors.OpenAIException;
-import com.openai.models.chat.completions.ChatCompletion;
-import com.openai.models.chat.completions.ChatCompletionCreateParams;
 import lombok.extern.java.Log;
-import lombok.extern.log4j.Log4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.Duration;
-import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 
 
 @RestController

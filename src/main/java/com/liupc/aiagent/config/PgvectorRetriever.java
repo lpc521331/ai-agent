@@ -6,6 +6,7 @@ import dev.langchain4j.model.embedding.AllMiniLmL6V2EmbeddingModel;
 import dev.langchain4j.model.embedding.EmbeddingModel;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.sql.DataSource;
@@ -30,6 +31,10 @@ public class PgvectorRetriever {
 
     // 嵌入模型（作为实例变量，由当前 Bean 初始化）
     private final EmbeddingModel embeddingModel;
+
+    // 可配置的距离阈值（从配置文件读取，默认0.5，需根据实际数据调整）
+    @Value("${rag.similarity.threshold:0.5}")
+    private double distanceThreshold;
 
     // 构造函数注入数据源（推荐方式，强制依赖）
     @Autowired
@@ -59,17 +64,22 @@ public class PgvectorRetriever {
 
         // 2. 执行 pgvector 相似性查询（欧氏距离 <->）
         List<String> results = new ArrayList<>();
-        String sql = "SELECT text, embedding <-> ?::vector AS distance " +  // pgvector 欧氏距离运算符
-                "FROM rag_documents " +
-                "ORDER BY distance " +  // 按距离升序（越近越相似）
-                "LIMIT ?";
+
+        // SQL 增加 WHERE 条件过滤距离过大的结果
+        String sql = "SELECT text, embedding <=> ?::vector AS distance "  // 余弦相似度（替换为 <-> 可保留欧氏距离）
+                + "FROM rag_documents "
+                + "WHERE embedding <=> ?::vector < ? "  // 距离小于阈值
+                + "ORDER BY distance "
+                + "LIMIT ?";
 
         // 使用 Spring 数据源获取连接（try-with-resources 自动关闭资源）
         try (Connection conn = dataSource.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
-            pstmt.setString(1, queryVectorStr);
-            pstmt.setInt(2, topN);
+            pstmt.setString(1, queryVectorStr);  // 用于计算距离
+            pstmt.setString(2, queryVectorStr);  // 用于 WHERE 条件过滤
+            pstmt.setDouble(3, distanceThreshold);  // 阈值
+            pstmt.setInt(4, topN);  // 最大返回数量
             ResultSet rs = pstmt.executeQuery();
 
             while (rs.next()) {
